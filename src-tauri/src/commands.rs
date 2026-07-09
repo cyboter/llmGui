@@ -2,8 +2,8 @@
 //! Hardware-Erkennung, Engine-Setup und Server-Lifecycle interagiert.
 
 use crate::config::ServerConfig;
-use crate::engine::{self, downloader::DownloadProgress, process::ServerProcess};
-use crate::errors::FriendlyError;
+use crate::engine::{self, downloader, downloader::DownloadProgress, process::ServerProcess};
+use crate::errors::{self, FriendlyError};
 use crate::hardware::{self, HardwareProfile};
 use crate::models::{self, CuratedModel};
 use serde::Serialize;
@@ -16,6 +16,7 @@ pub struct AppState {
     pub server: Arc<Mutex<ServerProcess>>,
     pub http_client: reqwest::Client,
     pub install_root: PathBuf,
+    pub models_root: PathBuf,
 }
 
 #[derive(Debug, Serialize)]
@@ -33,10 +34,10 @@ pub fn detect_hardware() -> HardwareProfile {
 pub fn load_curated_models(app: tauri::AppHandle) -> Result<Vec<CuratedModel>, String> {
     let resource_path = app
         .path()
-        .resource_dir()
-        .map_err(|e| e.to_string())?
-        .join("model-registry.json");
-    models::load_registry(&resource_path).map_err(|e| e.to_string())
+        .resolve("model-registry.json", tauri::path::BaseDirectory::Resource)
+        .map_err(|e| e.to_string())?;
+    models::load_registry(&resource_path)
+        .map_err(|e| format!("{e} (Pfad: {})", resource_path.display()))
 }
 
 #[tauri::command]
@@ -86,6 +87,52 @@ pub async fn start_server(
 ) -> Result<(), FriendlyError> {
     let mut server = state.server.lock().await;
     engine::start_with_retry(&mut server, &PathBuf::from(exe_path), &config, max_gpu_layers).await
+}
+
+/// Lädt eine kuratierte Modelldatei herunter (falls noch nicht vorhanden),
+/// prüft die SHA256-Checksumme und sendet währenddessen
+/// `model-download-progress`-Events für die Fortschrittsanzeige im
+/// Onboarding. Gibt den lokalen Pfad zur GGUF-Datei zurück.
+#[tauri::command]
+pub async fn download_model(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+    model: CuratedModel,
+) -> Result<String, FriendlyError> {
+    let dest = state.models_root.join(format!("{}.gguf", model.id));
+
+    if dest.exists() {
+        if downloader::verify_sha256(&dest, &model.sha256).is_ok() {
+            return Ok(dest.to_string_lossy().to_string());
+        }
+        // Beschädigte/unvollständige Vorgänger-Datei verwerfen und neu laden.
+        let _ = std::fs::remove_file(&dest);
+    }
+
+    let client = state.http_client.clone();
+    let app_for_progress = app.clone();
+
+    downloader::download_resumable(
+        &client,
+        &model.download_url,
+        &dest,
+        model.approx_size_bytes,
+        move |progress: DownloadProgress| {
+            let _ = app_for_progress.emit("model-download-progress", &progress);
+        },
+    )
+    .await
+    .map_err(|e| match e {
+        downloader::DownloadError::InsufficientDiskSpace => errors::disk_space_error(),
+        other => errors::network_error(other.to_string()),
+    })?;
+
+    if downloader::verify_sha256(&dest, &model.sha256).is_err() {
+        let _ = std::fs::remove_file(&dest);
+        return Err(errors::checksum_error());
+    }
+
+    Ok(dest.to_string_lossy().to_string())
 }
 
 #[tauri::command]

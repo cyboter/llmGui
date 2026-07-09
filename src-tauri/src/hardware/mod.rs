@@ -2,7 +2,7 @@
 //! Empfehlung von Modell, Quantisierung und Engine-Backend.
 
 mod dxgi;
-mod wmi_probe;
+mod memory_probe;
 
 use serde::{Deserialize, Serialize};
 
@@ -45,7 +45,7 @@ pub struct HardwareProfile {
 /// statt die gesamte Erkennung abzubrechen — der Nutzer soll nie mit einem
 /// Fehler im Ersteinrichtungs-Flow hängen bleiben.
 pub fn detect() -> HardwareProfile {
-    let total_ram_bytes = wmi_probe::total_ram_bytes().unwrap_or(8 * 1024 * 1024 * 1024);
+    let total_ram_bytes = memory_probe::total_ram_bytes().unwrap_or(8 * 1024 * 1024 * 1024);
     let cpu_threads = std::thread::available_parallelism()
         .map(|n| n.get() as u32)
         .unwrap_or(4);

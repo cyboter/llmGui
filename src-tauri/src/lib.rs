@@ -15,16 +15,16 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            let install_root = app
+            let app_data_dir = app
                 .path()
                 .app_local_data_dir()
-                .expect("app_local_data_dir sollte immer verfügbar sein")
-                .join("engine");
+                .expect("app_local_data_dir sollte immer verfügbar sein");
 
             app.manage(AppState {
                 server: Arc::new(Mutex::new(engine::process::ServerProcess::new())),
                 http_client: reqwest::Client::new(),
-                install_root,
+                install_root: app_data_dir.join("engine"),
+                models_root: app_data_dir.join("models"),
             });
 
             Ok(())
@@ -34,6 +34,7 @@ pub fn run() {
             commands::load_curated_models,
             commands::recommend_model,
             commands::ensure_engine,
+            commands::download_model,
             commands::start_server,
             commands::stop_server,
             commands::server_status,
