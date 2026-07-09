@@ -51,10 +51,14 @@ interface OnboardingProps {
 export default function Onboarding({ onComplete }: OnboardingProps) {
   const [step, setStep] = useState<Step>("detecting");
   const [hardware, setHardware] = useState<HardwareProfile | null>(null);
-  const [model, setModel] = useState<CuratedModel | null>(null);
+  const [models, setModels] = useState<CuratedModel[]>([]);
+  const [recommendedId, setRecommendedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [engineProgress, setEngineProgress] = useState<DownloadProgress | null>(null);
   const [modelProgress, setModelProgress] = useState<DownloadProgress | null>(null);
   const [error, setError] = useState<FriendlyError | null>(null);
+
+  const model = models.find((m) => m.id === selectedId) ?? null;
 
   useEffect(() => {
     let cancelled = false;
@@ -65,9 +69,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         if (cancelled) return;
         setHardware(hw);
 
-        const models = await loadCuratedModels();
+        const loadedModels = await loadCuratedModels();
         const recommended = await recommendModel(
-          models,
+          loadedModels,
           hw.total_ram_bytes,
           bestVramBytes(hw),
         );
@@ -83,7 +87,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           return;
         }
 
-        setModel(recommended);
+        setModels(loadedModels);
+        setRecommendedId(recommended.id);
+        setSelectedId(recommended.id);
         setStep("recommendation");
       } catch (e) {
         if (cancelled) return;
@@ -164,7 +170,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       )}
 
       {step === "recommendation" && hardware && model && (
-        <div className="onboarding-card">
+        <div className="onboarding-card onboarding-card-wide">
           <h1>Alles bereit</h1>
           <p className="hw-summary">
             Wir haben erkannt: {formatBytes(hardware.total_ram_bytes)}{" "}
@@ -174,24 +180,36 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             )}
             .
           </p>
-          <div className="model-recommendation">
-            <h2>{model.label}</h2>
-            <p>{model.description}</p>
-            <p className="model-size">
-              Downloadgröße: ca. {formatBytes(model.approxSizeBytes)}
-            </p>
-            <p className="model-license">
-              Lizenz ({model.license.name}): {model.license.summary}{" "}
-              <a href={model.license.url} target="_blank" rel="noreferrer">
-                Volltext ansehen
-              </a>
-            </p>
+
+          <div className="model-options">
+            {models.map((m) => (
+              <button
+                key={m.id}
+                className={`model-option ${m.id === selectedId ? "selected" : ""}`}
+                onClick={() => setSelectedId(m.id)}
+              >
+                {m.id === recommendedId && (
+                  <span className="model-option-badge">Empfohlen für deinen Computer</span>
+                )}
+                <h2>{m.label}</h2>
+                <p>{m.description}</p>
+                <p className="model-size">Downloadgröße: ca. {formatBytes(m.approxSizeBytes)}</p>
+              </button>
+            ))}
           </div>
+
+          <p className="model-license">
+            Lizenz ({model.license.name}): {model.license.summary}{" "}
+            <a href={model.license.url} target="_blank" rel="noreferrer">
+              Volltext ansehen
+            </a>
+          </p>
+
           <button className="primary-button" onClick={handleStart}>
             Jetzt einrichten
           </button>
           <p className="setup-hint">
-            Dieses Modell lässt sich später im Erweiterten Modus (Zahnrad-Symbol) jederzeit
+            Das gewählte Modell lässt sich später im Erweiterten Modus (Zahnrad-Symbol) jederzeit
             wechseln.
           </p>
         </div>

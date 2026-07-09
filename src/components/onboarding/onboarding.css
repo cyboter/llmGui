@@ -12,6 +12,10 @@
   text-align: center;
 }
 
+.onboarding-card-wide {
+  max-width: 640px;
+}
+
 .onboarding-card h1 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
@@ -22,23 +26,65 @@
   margin-bottom: 1.5rem;
 }
 
-.model-recommendation {
-  background: rgba(127, 127, 127, 0.08);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-  text-align: left;
+.model-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
-.model-recommendation h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.1rem;
+.model-option {
+  position: relative;
+  background: rgba(127, 127, 127, 0.08);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+
+.model-option:hover {
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.model-option.selected {
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.model-option h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.model-option p {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.model-option-badge {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin-bottom: 0.5rem;
 }
 
 .model-size,
 .model-license {
   font-size: 0.85rem;
   color: #666;
+  text-align: left;
+}
+
+.model-license {
+  margin-bottom: 1.25rem;
 }
 
 .setup-hint {
