@@ -26,12 +26,33 @@
   "bundle": {
     "active": true,
     "targets": ["msi", "nsis"],
+    "publisher": "cyboter",
+    "shortDescription": "Lokale KI-Sprachmodelle einfach nutzen",
+    "longDescription": "LLM GUI ist ein benutzerfreundlicher Windows-Wrapper für llama.cpp, mit dem sich lokale KI-Sprachmodelle ohne technisches Vorwissen installieren und nutzen lassen.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.ico"
     ],
-    "resources": ["../model-registry.json"]
+    "resources": ["../model-registry.json"],
+    "createUpdaterArtifacts": true,
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "languages": ["German", "English"],
+        "displayLanguageSelector": false
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI5MzBENzk0MkJBNUZCNzAKUldSdys2VXJsTmN3dWUxYklvZm1qTjBOTWhkdHFRaDVQTnZ1Ly8rYTZtVTlEQmxxRjBwaERQZGIK",
+      "endpoints": [
+        "https://github.com/cyboter/llmGui/releases/latest/download/latest.json"
+      ]
+    }
   }
 }

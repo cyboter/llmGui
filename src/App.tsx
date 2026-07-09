@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Onboarding from "./components/onboarding/Onboarding";
 import Chat from "./components/chat/Chat";
 import AdvancedPanel from "./components/advanced/AdvancedPanel";
+import UpdateBanner from "./components/shared/UpdateBanner";
 import { isSetupComplete, loadServerSetup, saveServerSetup, loadEngineRepo } from "./state/appState";
 import { detectHardware, ensureEngine, serverStatus, startServer, stopServer } from "./api/backend";
 import { isFriendlyError } from "./api/types";
@@ -138,6 +139,7 @@ function App() {
         applying={applying}
         applyError={applyError}
       />
+      <UpdateBanner />
     </>
   );
 }
