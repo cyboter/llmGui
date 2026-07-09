@@ -1,0 +1,63 @@
+{
+  "$schema_version": 1,
+  "updated": "2026-07-09",
+  "models": [
+    {
+      "id": "small-fast",
+      "label": "Klein & schnell",
+      "description": "Antwortet sehr flott, auch auf älterer Hardware. Ideal zum Ausprobieren.",
+      "source": "Llama 3.2 3B Instruct",
+      "quantization": "Q4_K_M",
+      "approxSizeBytes": 2147483648,
+      "sha256": "",
+      "downloadUrl": "",
+      "license": {
+        "name": "Llama 3.2 Community License",
+        "summary": "Kostenlos nutzbar, auch privat.",
+        "url": "https://www.llama.com/llama3_2/license/"
+      },
+      "recommendedFor": {
+        "minRamGb": 8,
+        "minVramGb": 0
+      }
+    },
+    {
+      "id": "balanced",
+      "label": "Ausgewogen",
+      "description": "Gute Balance aus Antwortqualität und Geschwindigkeit. Standard-Empfehlung für die meisten Rechner.",
+      "source": "Llama 3.1 8B Instruct",
+      "quantization": "Q4_K_M",
+      "approxSizeBytes": 4900000000,
+      "sha256": "",
+      "downloadUrl": "",
+      "license": {
+        "name": "Llama 3.1 Community License",
+        "summary": "Kostenlos nutzbar, auch privat.",
+        "url": "https://www.llama.com/llama3_1/license/"
+      },
+      "recommendedFor": {
+        "minRamGb": 16,
+        "minVramGb": 6
+      }
+    },
+    {
+      "id": "large-powerful",
+      "label": "Groß & leistungsstark",
+      "description": "Beste Antwortqualität, braucht dafür mehr Arbeitsspeicher und Zeit.",
+      "source": "Qwen2.5 14B Instruct",
+      "quantization": "Q4_K_M",
+      "approxSizeBytes": 9000000000,
+      "sha256": "",
+      "downloadUrl": "",
+      "license": {
+        "name": "Qwen License",
+        "summary": "Kostenlos nutzbar, auch privat.",
+        "url": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct/blob/main/LICENSE"
+      },
+      "recommendedFor": {
+        "minRamGb": 32,
+        "minVramGb": 10
+      }
+    }
+  ]
+}
