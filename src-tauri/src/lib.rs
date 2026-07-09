@@ -14,6 +14,7 @@ use tokio::sync::Mutex;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let app_data_dir = app
                 .path()
@@ -35,6 +36,7 @@ pub fn run() {
             commands::recommend_model,
             commands::ensure_engine,
             commands::download_model,
+            commands::validate_custom_model,
             commands::start_server,
             commands::stop_server,
             commands::server_status,

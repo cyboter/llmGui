@@ -1,7 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { open } from "@tauri-apps/plugin-dialog";
 import type {
   CuratedModel,
+  CustomModelInfo,
   DownloadProgress,
   EngineBackend,
   HardwareProfile,
@@ -62,6 +64,20 @@ export function serverStatus(): Promise<ServerStatus> {
 
 export function serverLogs(): Promise<string[]> {
   return invoke("server_logs");
+}
+
+export function validateCustomModel(path: string): Promise<CustomModelInfo> {
+  return invoke("validate_custom_model", { path });
+}
+
+/// Öffnet den nativen Dateiauswahl-Dialog für GGUF-Dateien. Gibt `null`
+/// zurück, wenn der Nutzer abbricht.
+export async function pickGgufFile(): Promise<string | null> {
+  const selected = await open({
+    multiple: false,
+    filters: [{ name: "GGUF-Modell", extensions: ["gguf"] }],
+  });
+  return typeof selected === "string" ? selected : null;
 }
 
 export function onEngineDownloadProgress(

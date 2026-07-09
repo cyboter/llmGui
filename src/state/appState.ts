@@ -4,6 +4,19 @@ const SETUP_COMPLETE_KEY = "llmgui.setupComplete";
 const SERVER_CONFIG_KEY = "llmgui.serverConfig";
 const EXE_PATH_KEY = "llmgui.exePath";
 const MAX_GPU_LAYERS_KEY = "llmgui.maxGpuLayers";
+const ENGINE_REPO_KEY = "llmgui.engineRepo";
+
+export function loadEngineRepo(): string | null {
+  return localStorage.getItem(ENGINE_REPO_KEY);
+}
+
+export function saveEngineRepo(repo: string | null): void {
+  if (repo && repo.trim()) {
+    localStorage.setItem(ENGINE_REPO_KEY, repo.trim());
+  } else {
+    localStorage.removeItem(ENGINE_REPO_KEY);
+  }
+}
 
 export function isSetupComplete(): boolean {
   return localStorage.getItem(SETUP_COMPLETE_KEY) === "true";

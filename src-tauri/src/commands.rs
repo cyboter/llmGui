@@ -135,6 +135,48 @@ pub async fn download_model(
     Ok(dest.to_string_lossy().to_string())
 }
 
+#[derive(Debug, Serialize)]
+pub struct CustomModelInfo {
+    pub path: String,
+    pub file_name: String,
+    pub size_bytes: u64,
+}
+
+/// Validiert eine vom Nutzer über den Dateidialog ausgewählte GGUF-Datei
+/// (Erweiterter Modus). Prüft nur Existenz, Endung und Lesbarkeit — die
+/// eigentliche Modellwahl/-verwaltung passiert im Frontend, da hierfür
+/// keine serverseitige Persistenz nötig ist (der Pfad wird direkt in
+/// ServerConfig.model_path verwendet).
+#[tauri::command]
+pub fn validate_custom_model(path: String) -> Result<CustomModelInfo, FriendlyError> {
+    let path_buf = PathBuf::from(&path);
+
+    if path_buf.extension().and_then(|e| e.to_str()) != Some("gguf") {
+        return Err(FriendlyError::new(
+            "Diese Datei ist keine GGUF-Modelldatei. Bitte wähle eine Datei mit der Endung .gguf.",
+            format!("unexpected extension for {path}"),
+        ));
+    }
+
+    let metadata = std::fs::metadata(&path_buf).map_err(|e| {
+        FriendlyError::new(
+            "Die ausgewählte Datei konnte nicht gelesen werden.",
+            e.to_string(),
+        )
+    })?;
+
+    let file_name = path_buf
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    Ok(CustomModelInfo {
+        path,
+        file_name,
+        size_bytes: metadata.len(),
+    })
+}
+
 #[tauri::command]
 pub async fn stop_server(state: State<'_, AppState>) -> Result<(), String> {
     let mut server = state.server.lock().await;

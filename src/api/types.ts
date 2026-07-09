@@ -62,6 +62,12 @@ export interface ServerStatus {
   port: number;
 }
 
+export interface CustomModelInfo {
+  path: string;
+  file_name: string;
+  size_bytes: number;
+}
+
 export interface FriendlyError {
   message: string;
   technical_detail: string;
