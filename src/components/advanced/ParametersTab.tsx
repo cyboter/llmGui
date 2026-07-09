@@ -1,4 +1,5 @@
-import type { ServerConfig } from "../../api/types";
+import { useTranslation } from "react-i18next";
+import type { CacheType, ServerConfig } from "../../api/types";
 import SliderField from "../shared/SliderField";
 
 interface ParametersTabProps {
@@ -6,12 +7,16 @@ interface ParametersTabProps {
   onChange: (patch: Partial<ServerConfig>) => void;
 }
 
+const CACHE_TYPES: CacheType[] = ["f16", "q8_0", "q4_0"];
+
 export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="parameters-tab">
       <SliderField
-        label="Kreativität (Temperature)"
-        tooltip="Höhere Werte machen Antworten kreativer und weniger vorhersehbar."
+        label={t("parameters.temperature.label")}
+        tooltip={t("parameters.temperature.tooltip")}
         value={draft.temperature}
         min={0}
         max={2}
@@ -19,8 +24,8 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
         onChange={(v) => onChange({ temperature: v })}
       />
       <SliderField
-        label="Top-P"
-        tooltip="Begrenzt die Auswahl auf die wahrscheinlichsten Wörter, deren Wahrscheinlichkeit zusammen diesen Wert ergibt."
+        label={t("parameters.topP.label")}
+        tooltip={t("parameters.topP.tooltip")}
         value={draft.top_p}
         min={0}
         max={1}
@@ -28,8 +33,8 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
         onChange={(v) => onChange({ top_p: v })}
       />
       <SliderField
-        label="Top-K"
-        tooltip="Begrenzt die Auswahl auf die K wahrscheinlichsten Wörter je Antwortschritt."
+        label={t("parameters.topK.label")}
+        tooltip={t("parameters.topK.tooltip")}
         value={draft.top_k}
         min={1}
         max={100}
@@ -37,8 +42,8 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
         onChange={(v) => onChange({ top_k: v })}
       />
       <SliderField
-        label="Wiederholungs-Bestrafung"
-        tooltip="Höhere Werte verringern die Wahrscheinlichkeit, dass sich das Modell wiederholt."
+        label={t("parameters.repeatPenalty.label")}
+        tooltip={t("parameters.repeatPenalty.tooltip")}
         value={draft.repeat_penalty}
         min={1}
         max={2}
@@ -46,8 +51,8 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
         onChange={(v) => onChange({ repeat_penalty: v })}
       />
       <SliderField
-        label="Kontext-Länge (Token)"
-        tooltip="Wie viel Text (eigene Nachrichten + Antworten) sich das Modell merken kann. Größere Werte brauchen mehr Arbeitsspeicher."
+        label={t("parameters.contextSize.label")}
+        tooltip={t("parameters.contextSize.tooltip")}
         value={draft.context_size}
         min={512}
         max={32768}
@@ -55,8 +60,8 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
         onChange={(v) => onChange({ context_size: v })}
       />
       <SliderField
-        label="CPU-Threads"
-        tooltip="Anzahl der Prozessorkerne, die für die Berechnung genutzt werden."
+        label={t("parameters.threads.label")}
+        tooltip={t("parameters.threads.tooltip")}
         value={draft.threads}
         min={1}
         max={32}
@@ -64,8 +69,8 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
         onChange={(v) => onChange({ threads: v })}
       />
       <SliderField
-        label="GPU-Layer"
-        tooltip="Wie viele Modell-Schichten auf die Grafikkarte ausgelagert werden. Höhere Werte sind schneller, brauchen aber mehr Grafikspeicher."
+        label={t("parameters.gpuLayers.label")}
+        tooltip={t("parameters.gpuLayers.tooltip")}
         value={draft.gpu_layers}
         min={0}
         max={999}
@@ -73,8 +78,38 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
         onChange={(v) => onChange({ gpu_layers: v })}
       />
 
+      <div className="field-block" title={t("parameters.cacheTypeK.tooltip")}>
+        <label htmlFor="cache-type-k">{t("parameters.cacheTypeK.label")}</label>
+        <select
+          id="cache-type-k"
+          value={draft.cache_type_k}
+          onChange={(e) => onChange({ cache_type_k: e.target.value as CacheType })}
+        >
+          {CACHE_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="field-block" title={t("parameters.cacheTypeV.tooltip")}>
+        <label htmlFor="cache-type-v">{t("parameters.cacheTypeV.label")}</label>
+        <select
+          id="cache-type-v"
+          value={draft.cache_type_v}
+          onChange={(e) => onChange({ cache_type_v: e.target.value as CacheType })}
+        >
+          {CACHE_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="field-block">
-        <label htmlFor="server-port">Server-Port</label>
+        <label htmlFor="server-port">{t("parameters.serverPort")}</label>
         <input
           id="server-port"
           type="number"
@@ -86,11 +121,11 @@ export default function ParametersTab({ draft, onChange }: ParametersTabProps) {
       </div>
 
       <div className="field-block">
-        <label htmlFor="system-prompt">System-Prompt</label>
+        <label htmlFor="system-prompt">{t("parameters.systemPrompt")}</label>
         <textarea
           id="system-prompt"
           rows={4}
-          placeholder="z.B. „Du bist ein hilfreicher Assistent, der kurz und präzise antwortet.“"
+          placeholder={t("parameters.systemPromptPlaceholder")}
           value={draft.system_prompt ?? ""}
           onChange={(e) => onChange({ system_prompt: e.target.value || null })}
         />

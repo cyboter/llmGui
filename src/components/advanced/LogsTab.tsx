@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { serverLogs } from "../../api/backend";
 
 const POLL_INTERVAL_MS = 1500;
 
 export default function LogsTab() {
+  const { t } = useTranslation();
   const [logs, setLogs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const logEndRef = useRef<HTMLDivElement | null>(null);
@@ -41,13 +43,13 @@ export default function LogsTab() {
   return (
     <div className="logs-tab">
       <div className="logs-toolbar">
-        <span className="hint">Live-Ausgabe des Sprachmodell-Servers, nützlich für Fehlersuche.</span>
+        <span className="hint">{t("logs.hint")}</span>
         <button className="secondary-button" onClick={handleCopy}>
-          {copied ? "Kopiert!" : "Kopieren"}
+          {copied ? t("logs.copied") : t("logs.copy")}
         </button>
       </div>
       <div className="logs-output">
-        {logs.length === 0 && <div className="hint">Noch keine Log-Zeilen.</div>}
+        {logs.length === 0 && <div className="hint">{t("logs.noLogs")}</div>}
         {logs.map((line, i) => (
           <div key={i} className="log-line">
             {line}

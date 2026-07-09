@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   detectHardware,
   downloadModel,
@@ -11,11 +12,11 @@ import {
 import type {
   CuratedModel,
   DownloadProgress,
-  FriendlyError,
   HardwareProfile,
 } from "../../api/types";
 import { isFriendlyError } from "../../api/types";
 import type { ServerConfig } from "../../api/types";
+import { translateError } from "../../api/errorTranslation";
 import { saveServerSetup, markSetupComplete } from "../../state/appState";
 import "./onboarding.css";
 
@@ -26,11 +27,9 @@ type Step =
   | "starting"
   | "error";
 
-function formatBytes(bytes: number): string {
-  if (bytes <= 0) return "0 MB";
-  const mb = bytes / (1024 * 1024);
-  if (mb < 1024) return `${mb.toFixed(0)} MB`;
-  return `${(mb / 1024).toFixed(1)} GB`;
+interface DisplayError {
+  message: string;
+  technicalDetail: string;
 }
 
 function bestVramBytes(hw: HardwareProfile): number {
@@ -49,6 +48,7 @@ interface OnboardingProps {
 }
 
 export default function Onboarding({ onComplete }: OnboardingProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>("detecting");
   const [hardware, setHardware] = useState<HardwareProfile | null>(null);
   const [models, setModels] = useState<CuratedModel[]>([]);
@@ -56,9 +56,16 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [engineProgress, setEngineProgress] = useState<DownloadProgress | null>(null);
   const [modelProgress, setModelProgress] = useState<DownloadProgress | null>(null);
-  const [error, setError] = useState<FriendlyError | null>(null);
+  const [error, setError] = useState<DisplayError | null>(null);
 
   const model = models.find((m) => m.id === selectedId) ?? null;
+
+  function formatBytes(bytes: number): string {
+    if (bytes <= 0) return `0 ${t("units.mb")}`;
+    const mb = bytes / (1024 * 1024);
+    if (mb < 1024) return `${mb.toFixed(0)} ${t("units.mb")}`;
+    return `${(mb / 1024).toFixed(1)} ${t("units.gb")}`;
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -79,9 +86,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
         if (!recommended) {
           setError({
-            message:
-              "Es konnte kein passendes Modell für deinen Computer gefunden werden.",
-            technical_detail: "recommend_model returned null",
+            message: t("onboarding.noModelFound"),
+            technicalDetail: "recommend_model returned null",
           });
           setStep("error");
           return;
@@ -95,11 +101,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         if (cancelled) return;
         setError(
           isFriendlyError(e)
-            ? e
-            : {
-                message: "Die Hardware-Erkennung ist fehlgeschlagen.",
-                technical_detail: String(e),
-              },
+            ? { message: translateError(e), technicalDetail: e.technical_detail }
+            : { message: t("onboarding.hardwareDetectionFailed"), technicalDetail: String(e) },
         );
         setStep("error");
       }
@@ -109,6 +112,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleStart() {
@@ -139,6 +143,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         top_k: 40,
         repeat_penalty: 1.1,
         system_prompt: null,
+        cache_type_k: "f16",
+        cache_type_v: "f16",
       };
       const maxGpuLayers = maxGpuLayersFor(hardware);
       saveServerSetup(exePath, config, maxGpuLayers);
@@ -149,11 +155,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       unlistenModel();
       setError(
         isFriendlyError(e)
-          ? e
-          : {
-              message: "Bei der Einrichtung ist etwas schiefgelaufen.",
-              technical_detail: String(e),
-            },
+          ? { message: translateError(e), technicalDetail: e.technical_detail }
+          : { message: t("onboarding.setupFailed"), technicalDetail: String(e) },
       );
       setStep("error");
     }
@@ -163,21 +166,19 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     <div className="onboarding">
       {step === "detecting" && (
         <div className="onboarding-card">
-          <h1>Willkommen</h1>
-          <p>Wir schauen uns kurz deinen Computer an…</p>
+          <h1>{t("onboarding.welcome")}</h1>
+          <p>{t("onboarding.detecting")}</p>
           <div className="spinner" />
         </div>
       )}
 
       {step === "recommendation" && hardware && model && (
         <div className="onboarding-card onboarding-card-wide">
-          <h1>Alles bereit</h1>
+          <h1>{t("onboarding.ready")}</h1>
           <p className="hw-summary">
-            Wir haben erkannt: {formatBytes(hardware.total_ram_bytes)}{" "}
-            Arbeitsspeicher
-            {hardware.gpus.length > 0 && (
-              <>, eine Grafikkarte ({hardware.gpus[0].name})</>
-            )}
+            {t("onboarding.hwSummaryRam", { ram: formatBytes(hardware.total_ram_bytes) })}
+            {hardware.gpus.length > 0 &&
+              t("onboarding.hwSummaryGpu", { gpu: hardware.gpus[0].name })}
             .
           </p>
 
@@ -189,68 +190,70 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 onClick={() => setSelectedId(m.id)}
               >
                 {m.id === recommendedId && (
-                  <span className="model-option-badge">Empfohlen für deinen Computer</span>
+                  <span className="model-option-badge">{t("onboarding.recommendedBadge")}</span>
                 )}
                 <h2>{m.label}</h2>
                 <p>{m.description}</p>
-                <p className="model-size">Downloadgröße: ca. {formatBytes(m.approxSizeBytes)}</p>
+                <p className="model-size">
+                  {t("onboarding.downloadSize", { size: formatBytes(m.approxSizeBytes) })}
+                </p>
               </button>
             ))}
           </div>
 
           <p className="model-license">
-            Lizenz ({model.license.name}): {model.license.summary}{" "}
+            {t("onboarding.license", { name: model.license.name, summary: model.license.summary })}
             <a href={model.license.url} target="_blank" rel="noreferrer">
-              Volltext ansehen
+              {t("onboarding.licenseFullText")}
             </a>
           </p>
 
           <button className="primary-button" onClick={handleStart}>
-            Jetzt einrichten
+            {t("onboarding.setupButton")}
           </button>
-          <p className="setup-hint">
-            Das gewählte Modell lässt sich später im Erweiterten Modus (Zahnrad-Symbol) jederzeit
-            wechseln.
-          </p>
+          <p className="setup-hint">{t("onboarding.setupHint")}</p>
         </div>
       )}
 
       {step === "downloading" && (
         <div className="onboarding-card">
-          <h1>Wird eingerichtet…</h1>
+          <h1>{t("onboarding.settingUp")}</h1>
           {engineProgress && engineProgress.total_bytes > 0 && (
             <ProgressBar
-              label="Programmkomponenten"
+              label={t("onboarding.engineComponents")}
               progress={engineProgress}
+              formatBytes={formatBytes}
             />
           )}
           {modelProgress && modelProgress.total_bytes > 0 && (
-            <ProgressBar label="KI-Modell" progress={modelProgress} />
+            <ProgressBar
+              label={t("onboarding.modelDownload")}
+              progress={modelProgress}
+              formatBytes={formatBytes}
+            />
           )}
-          {!engineProgress && !modelProgress && (
-            <p>Der Download startet gleich…</p>
-          )}
+          {!engineProgress && !modelProgress && <p>{t("onboarding.downloadStarting")}</p>}
         </div>
       )}
 
       {step === "starting" && (
         <div className="onboarding-card">
-          <h1>Fast fertig…</h1>
-          <p>Das Sprachmodell wird gestartet.</p>
+          <h1>{t("onboarding.almostDone")}</h1>
+          <p>{t("onboarding.startingModel")}</p>
           <div className="spinner" />
         </div>
       )}
 
       {step === "error" && error && (
         <div className="onboarding-card">
-          <h1>Das hat leider nicht geklappt</h1>
+          <h1>{t("onboarding.errorTitle")}</h1>
           <p className="error-message">{error.message}</p>
           <button className="primary-button" onClick={() => window.location.reload()}>
-            Erneut versuchen
+            {t("onboarding.retryButton")}
           </button>
           <details>
-            <summary>Technische Details</summary>
-            <pre>{error.technical_detail}</pre>
+            <summary>{t("onboarding.technicalDetails")}</summary>
+            <pre>{error.technicalDetail}</pre>
           </details>
         </div>
       )}
@@ -261,10 +264,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 function ProgressBar({
   label,
   progress,
+  formatBytes,
 }: {
   label: string;
   progress: DownloadProgress;
+  formatBytes: (bytes: number) => string;
 }) {
+  const { t } = useTranslation();
   const pct = Math.min(
     100,
     Math.round((progress.downloaded_bytes / progress.total_bytes) * 100),
@@ -274,8 +280,10 @@ function ProgressBar({
       <div className="progress-label">
         <span>{label}</span>
         <span>
-          {formatBytes(progress.downloaded_bytes)} von{" "}
-          {formatBytes(progress.total_bytes)}
+          {t("onboarding.downloadedOf", {
+            downloaded: formatBytes(progress.downloaded_bytes),
+            total: formatBytes(progress.total_bytes),
+          })}
         </span>
       </div>
       <div className="progress-track">

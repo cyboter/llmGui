@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChatMessage, ChatSession } from "./chatTypes";
 import { createSession, loadSessions, saveSessions } from "./chatStorage";
 import { streamChat } from "./streamChat";
@@ -10,6 +11,7 @@ interface ChatProps {
 }
 
 export default function Chat({ port, systemPrompt }: ChatProps) {
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
     const loaded = loadSessions();
     return loaded.length > 0 ? loaded : [createSession()];
@@ -96,9 +98,7 @@ export default function Chat({ port, systemPrompt }: ChatProps) {
             m.id === assistantMessage.id
               ? {
                   ...m,
-                  content:
-                    m.content ||
-                    "Die Antwort konnte nicht abgerufen werden. Bitte versuche es erneut.",
+                  content: m.content || t("chat.responseError"),
                 }
               : m,
           ),
@@ -121,7 +121,7 @@ export default function Chat({ port, systemPrompt }: ChatProps) {
     <div className="chat-layout">
       <aside className="chat-sidebar">
         <button className="new-chat-button" onClick={handleNewChat}>
-          + Neuer Chat
+          {t("chat.newChat")}
         </button>
         <div className="chat-list">
           {sessions.map((s) => (
@@ -139,7 +139,7 @@ export default function Chat({ port, systemPrompt }: ChatProps) {
       <main className="chat-main">
         <div className="messages">
           {active.messages.length === 0 && (
-            <div className="empty-state">Stell mir eine Frage, um loszulegen.</div>
+            <div className="empty-state">{t("chat.emptyState")}</div>
           )}
           {active.messages.map((m) => (
             <div key={m.id} className={`message message-${m.role}`}>
@@ -156,7 +156,7 @@ export default function Chat({ port, systemPrompt }: ChatProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Nachricht eingeben…"
+            placeholder={t("chat.messagePlaceholder")}
             rows={2}
             disabled={isStreaming}
           />
@@ -165,7 +165,7 @@ export default function Chat({ port, systemPrompt }: ChatProps) {
             onClick={handleSend}
             disabled={isStreaming || !input.trim()}
           >
-            Senden
+            {t("chat.send")}
           </button>
         </div>
       </main>

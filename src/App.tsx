@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Onboarding from "./components/onboarding/Onboarding";
 import Chat from "./components/chat/Chat";
 import AdvancedPanel from "./components/advanced/AdvancedPanel";
@@ -7,6 +8,7 @@ import { isSetupComplete, loadServerSetup, saveServerSetup, loadEngineRepo } fro
 import { detectHardware, ensureEngine, serverStatus, startServer, stopServer } from "./api/backend";
 import { isFriendlyError } from "./api/types";
 import type { ServerConfig } from "./api/types";
+import { translateError } from "./api/errorTranslation";
 
 type AppPhase = "onboarding" | "starting-server" | "ready" | "error";
 
@@ -17,6 +19,7 @@ interface RunningSetup {
 }
 
 function App() {
+  const { t } = useTranslation();
   const [phase, setPhase] = useState<AppPhase>(
     isSetupComplete() ? "starting-server" : "onboarding",
   );
@@ -49,7 +52,7 @@ function App() {
       } catch (e) {
         if (cancelled) return;
         setStartError(
-          isFriendlyError(e) ? e.message : "Das Sprachmodell konnte nicht gestartet werden.",
+          isFriendlyError(e) ? translateError(e) : t("app.modelStartFailed"),
         );
         setPhase("error");
       }
@@ -107,9 +110,7 @@ function App() {
         // Auch der Fallback ist gescheitert — dann bleibt nur die
         // Fehlermeldung, der Nutzer muss die App neu starten.
       }
-      setApplyError(
-        isFriendlyError(e) ? e.message : "Die Einstellungen konnten nicht angewendet werden.",
-      );
+      setApplyError(isFriendlyError(e) ? translateError(e) : t("app.applyFailed"));
     } finally {
       setApplying(false);
     }
@@ -122,8 +123,8 @@ function App() {
   if (phase === "starting-server") {
     return (
       <main className="app">
-        <h1>LLM GUI</h1>
-        <p>Das Sprachmodell wird gestartet…</p>
+        <h1>{t("app.title")}</h1>
+        <p>{t("app.startingModel")}</p>
       </main>
     );
   }
@@ -131,7 +132,7 @@ function App() {
   if (phase === "error") {
     return (
       <main className="app">
-        <h1>Etwas ist schiefgelaufen</h1>
+        <h1>{t("app.somethingWrong")}</h1>
         <p>{startError}</p>
       </main>
     );
@@ -143,8 +144,8 @@ function App() {
       <button
         className="settings-gear-button"
         onClick={() => setAdvancedOpen(true)}
-        aria-label="Erweiterte Einstellungen"
-        title="Erweiterte Einstellungen"
+        aria-label={t("app.advancedSettingsLabel")}
+        title={t("app.advancedSettingsLabel")}
       >
         ⚙
       </button>

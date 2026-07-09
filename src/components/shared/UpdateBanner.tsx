@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Update } from "@tauri-apps/plugin-updater";
 import { checkForUpdate, installUpdateAndRestart } from "../../api/updater";
 import "./update-banner.css";
 
 export default function UpdateBanner() {
+  const { t } = useTranslation();
   const [update, setUpdate] = useState<Update | null>(null);
   const [installing, setInstalling] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
@@ -31,16 +33,16 @@ export default function UpdateBanner() {
     <div className="update-banner">
       <span>
         {installing
-          ? `Update wird installiert${progress !== null ? ` (${progress}%)` : "…"}`
-          : `Eine neue Version (${update.version}) ist verfügbar.`}
+          ? `${t("update.installing")}${progress !== null ? ` (${progress}%)` : "…"}`
+          : t("update.available", { version: update.version })}
       </span>
       {!installing && (
         <div className="update-banner-actions">
           <button className="secondary-button" onClick={handleInstall}>
-            Jetzt installieren
+            {t("update.installNow")}
           </button>
           <button className="dismiss-button" onClick={() => setDismissed(true)}>
-            Später
+            {t("update.later")}
           </button>
         </div>
       )}

@@ -44,6 +44,8 @@ export interface DownloadProgress {
   total_bytes: number;
 }
 
+export type CacheType = "f16" | "q8_0" | "q4_0";
+
 export interface ServerConfig {
   model_path: string;
   port: number;
@@ -55,6 +57,8 @@ export interface ServerConfig {
   top_k: number;
   repeat_penalty: number;
   system_prompt: string | null;
+  cache_type_k: CacheType;
+  cache_type_v: CacheType;
 }
 
 export interface ServerStatus {
@@ -68,7 +72,20 @@ export interface CustomModelInfo {
   size_bytes: number;
 }
 
+export type ErrorCode =
+  | "gpu_out_of_memory"
+  | "model_load_failed"
+  | "port_in_use"
+  | "no_cuda_driver"
+  | "startup_failed_generic"
+  | "insufficient_disk_space"
+  | "network_error"
+  | "checksum_mismatch"
+  | "invalid_file_extension"
+  | "file_not_readable";
+
 export interface FriendlyError {
+  code: ErrorCode;
   message: string;
   technical_detail: string;
 }
@@ -77,6 +94,7 @@ export function isFriendlyError(e: unknown): e is FriendlyError {
   return (
     typeof e === "object" &&
     e !== null &&
+    "code" in e &&
     "message" in e &&
     "technical_detail" in e
   );

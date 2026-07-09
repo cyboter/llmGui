@@ -1,0 +1,142 @@
+{
+  "onboarding": {
+    "welcome": "Welcome",
+    "detecting": "Taking a quick look at your computer…",
+    "ready": "All set",
+    "hwSummaryRam": "We detected: {{ram}} of memory",
+    "hwSummaryGpu": ", a graphics card ({{gpu}})",
+    "downloadSize": "Download size: approx. {{size}}",
+    "license": "License ({{name}}): {{summary}} ",
+    "licenseFullText": "View full text",
+    "recommendedBadge": "Recommended for your computer",
+    "setupButton": "Set up now",
+    "setupHint": "You can change the selected model anytime later in Advanced Mode (gear icon).",
+    "settingUp": "Setting up…",
+    "engineComponents": "Program components",
+    "modelDownload": "AI model",
+    "downloadStarting": "The download will start shortly…",
+    "almostDone": "Almost done…",
+    "startingModel": "Starting the language model.",
+    "errorTitle": "That didn't work",
+    "retryButton": "Try again",
+    "technicalDetails": "Technical details",
+    "downloadedOf": "{{downloaded}} of {{total}}",
+    "noModelFound": "No suitable model could be found for your computer.",
+    "hardwareDetectionFailed": "Hardware detection failed.",
+    "setupFailed": "Something went wrong during setup."
+  },
+  "app": {
+    "title": "LLM GUI",
+    "startingModel": "Starting the language model…",
+    "somethingWrong": "Something went wrong",
+    "modelStartFailed": "The language model could not be started.",
+    "applyFailed": "The settings could not be applied.",
+    "advancedSettingsLabel": "Advanced settings"
+  },
+  "chat": {
+    "newChat": "+ New chat",
+    "emptyState": "Ask me a question to get started.",
+    "messagePlaceholder": "Type a message…",
+    "send": "Send",
+    "responseError": "The response could not be retrieved. Please try again."
+  },
+  "advanced": {
+    "title": "Advanced settings",
+    "close": "Close",
+    "tabs": {
+      "parameters": "Parameters",
+      "models": "Models",
+      "logs": "Logs"
+    },
+    "applying": "Applying…",
+    "apply": "Apply & restart",
+    "language": "Language",
+    "languageGerman": "Deutsch",
+    "languageEnglish": "English"
+  },
+  "parameters": {
+    "temperature": {
+      "label": "Creativity (temperature)",
+      "tooltip": "Higher values make responses more creative and less predictable."
+    },
+    "topP": {
+      "label": "Top-P",
+      "tooltip": "Limits the selection to the most likely words whose combined probability reaches this value."
+    },
+    "topK": {
+      "label": "Top-K",
+      "tooltip": "Limits the selection to the K most likely words at each response step."
+    },
+    "repeatPenalty": {
+      "label": "Repeat penalty",
+      "tooltip": "Higher values reduce the likelihood of the model repeating itself."
+    },
+    "contextSize": {
+      "label": "Context length (tokens)",
+      "tooltip": "How much text (your messages + responses) the model can remember. Larger values require more memory."
+    },
+    "threads": {
+      "label": "CPU threads",
+      "tooltip": "Number of processor cores used for computation."
+    },
+    "gpuLayers": {
+      "label": "GPU layers",
+      "tooltip": "How many model layers are offloaded to the graphics card. Higher values are faster but require more VRAM."
+    },
+    "cacheTypeK": {
+      "label": "Cache quantization (Key)",
+      "tooltip": "Reduces the memory footprint of the context cache. f16 = full precision, q8_0 = barely noticeable quality loss, q4_0 = noticeable quality loss with significant memory savings."
+    },
+    "cacheTypeV": {
+      "label": "Cache quantization (Value)",
+      "tooltip": "Reduces the memory footprint of the context cache. f16 = full precision, q8_0 = barely noticeable quality loss, q4_0 = noticeable quality loss with significant memory savings."
+    },
+    "serverPort": "Server port",
+    "systemPrompt": "System prompt",
+    "systemPromptPlaceholder": "e.g. \"You are a helpful assistant that answers concisely and precisely.\""
+  },
+  "models": {
+    "ownModels": "Your own models",
+    "ownModelsHint": "Load your own GGUF file from your computer. Be sure to follow the license terms of the respective model.",
+    "pickFile": "Choose GGUF file…",
+    "checking": "Checking…",
+    "noOwnModels": "No custom models loaded yet.",
+    "removeLabel": "Remove",
+    "curatedModels": "Curated models",
+    "curatedModelsHint": "Clicking downloads the model (if not already present) and selects it.",
+    "loading": "Loading…",
+    "engineSource": "Engine source",
+    "engineSourceHint": "By default, llama-server is loaded from ggml-org/llama.cpp. You can specify a fork here (format: owner/repo).",
+    "disclaimerConfirm": "Custom model files are not verified by us. Please make sure you know and comply with the license terms of the respective model.\n\nContinue?",
+    "fileLoadError": "The file could not be loaded.",
+    "downloadError": "The model could not be loaded."
+  },
+  "logs": {
+    "hint": "Live output of the language model server, useful for troubleshooting.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "noLogs": "No log lines yet."
+  },
+  "update": {
+    "installing": "Installing update",
+    "available": "A new version ({{version}}) is available.",
+    "installNow": "Install now",
+    "later": "Later"
+  },
+  "units": {
+    "mb": "MB",
+    "gb": "GB"
+  },
+  "errors": {
+    "gpu_out_of_memory": "Your graphics card doesn't have enough memory for this model. We're automatically switching to a slower but reliable mode.",
+    "model_load_failed": "The model file could not be loaded. It may be corrupted or was not downloaded completely.",
+    "port_in_use": "The selected port is already in use by another program. Please choose a different port in Advanced Mode.",
+    "no_cuda_driver": "No supported NVIDIA graphics card could be found. We're switching to a mode that works without special graphics card support.",
+    "startup_failed_generic": "The language model could not be started. We're retrying with adjusted settings.",
+    "insufficient_disk_space": "There isn't enough free disk space. Please free up some space and try again.",
+    "network_error": "The download could not be completed. Please check your internet connection and try again.",
+    "checksum_mismatch": "The downloaded file appears to be corrupted. We're retrying the download.",
+    "invalid_file_extension": "This file is not a GGUF model file. Please choose a file with the .gguf extension.",
+    "file_not_readable": "The selected file could not be read."
+  }
+}

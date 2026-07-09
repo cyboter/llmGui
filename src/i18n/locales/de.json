@@ -1,0 +1,142 @@
+{
+  "onboarding": {
+    "welcome": "Willkommen",
+    "detecting": "Wir schauen uns kurz deinen Computer an…",
+    "ready": "Alles bereit",
+    "hwSummaryRam": "Wir haben erkannt: {{ram}} Arbeitsspeicher",
+    "hwSummaryGpu": ", eine Grafikkarte ({{gpu}})",
+    "downloadSize": "Downloadgröße: ca. {{size}}",
+    "license": "Lizenz ({{name}}): {{summary}} ",
+    "licenseFullText": "Volltext ansehen",
+    "recommendedBadge": "Empfohlen für deinen Computer",
+    "setupButton": "Jetzt einrichten",
+    "setupHint": "Das gewählte Modell lässt sich später im Erweiterten Modus (Zahnrad-Symbol) jederzeit wechseln.",
+    "settingUp": "Wird eingerichtet…",
+    "engineComponents": "Programmkomponenten",
+    "modelDownload": "KI-Modell",
+    "downloadStarting": "Der Download startet gleich…",
+    "almostDone": "Fast fertig…",
+    "startingModel": "Das Sprachmodell wird gestartet.",
+    "errorTitle": "Das hat leider nicht geklappt",
+    "retryButton": "Erneut versuchen",
+    "technicalDetails": "Technische Details",
+    "downloadedOf": "{{downloaded}} von {{total}}",
+    "noModelFound": "Es konnte kein passendes Modell für deinen Computer gefunden werden.",
+    "hardwareDetectionFailed": "Die Hardware-Erkennung ist fehlgeschlagen.",
+    "setupFailed": "Bei der Einrichtung ist etwas schiefgelaufen."
+  },
+  "app": {
+    "title": "LLM GUI",
+    "startingModel": "Das Sprachmodell wird gestartet…",
+    "somethingWrong": "Etwas ist schiefgelaufen",
+    "modelStartFailed": "Das Sprachmodell konnte nicht gestartet werden.",
+    "applyFailed": "Die Einstellungen konnten nicht angewendet werden.",
+    "advancedSettingsLabel": "Erweiterte Einstellungen"
+  },
+  "chat": {
+    "newChat": "+ Neuer Chat",
+    "emptyState": "Stell mir eine Frage, um loszulegen.",
+    "messagePlaceholder": "Nachricht eingeben…",
+    "send": "Senden",
+    "responseError": "Die Antwort konnte nicht abgerufen werden. Bitte versuche es erneut."
+  },
+  "advanced": {
+    "title": "Erweiterte Einstellungen",
+    "close": "Schließen",
+    "tabs": {
+      "parameters": "Parameter",
+      "models": "Modelle",
+      "logs": "Logs"
+    },
+    "applying": "Wird angewendet…",
+    "apply": "Anwenden & neu starten",
+    "language": "Sprache",
+    "languageGerman": "Deutsch",
+    "languageEnglish": "English"
+  },
+  "parameters": {
+    "temperature": {
+      "label": "Kreativität (Temperature)",
+      "tooltip": "Höhere Werte machen Antworten kreativer und weniger vorhersehbar."
+    },
+    "topP": {
+      "label": "Top-P",
+      "tooltip": "Begrenzt die Auswahl auf die wahrscheinlichsten Wörter, deren Wahrscheinlichkeit zusammen diesen Wert ergibt."
+    },
+    "topK": {
+      "label": "Top-K",
+      "tooltip": "Begrenzt die Auswahl auf die K wahrscheinlichsten Wörter je Antwortschritt."
+    },
+    "repeatPenalty": {
+      "label": "Wiederholungs-Bestrafung",
+      "tooltip": "Höhere Werte verringern die Wahrscheinlichkeit, dass sich das Modell wiederholt."
+    },
+    "contextSize": {
+      "label": "Kontext-Länge (Token)",
+      "tooltip": "Wie viel Text (eigene Nachrichten + Antworten) sich das Modell merken kann. Größere Werte brauchen mehr Arbeitsspeicher."
+    },
+    "threads": {
+      "label": "CPU-Threads",
+      "tooltip": "Anzahl der Prozessorkerne, die für die Berechnung genutzt werden."
+    },
+    "gpuLayers": {
+      "label": "GPU-Layer",
+      "tooltip": "Wie viele Modell-Schichten auf die Grafikkarte ausgelagert werden. Höhere Werte sind schneller, brauchen aber mehr Grafikspeicher."
+    },
+    "cacheTypeK": {
+      "label": "Zwischenspeicher-Quantisierung (Key)",
+      "tooltip": "Reduziert den Speicherbedarf des Kontext-Zwischenspeichers. f16 = volle Genauigkeit, q8_0 = kaum Qualitätsverlust, q4_0 = spürbarer Qualitätsverlust bei deutlicher Speicherersparnis."
+    },
+    "cacheTypeV": {
+      "label": "Zwischenspeicher-Quantisierung (Value)",
+      "tooltip": "Reduziert den Speicherbedarf des Kontext-Zwischenspeichers. f16 = volle Genauigkeit, q8_0 = kaum Qualitätsverlust, q4_0 = spürbarer Qualitätsverlust bei deutlicher Speicherersparnis."
+    },
+    "serverPort": "Server-Port",
+    "systemPrompt": "System-Prompt",
+    "systemPromptPlaceholder": "z.B. „Du bist ein hilfreicher Assistent, der kurz und präzise antwortet.“"
+  },
+  "models": {
+    "ownModels": "Eigene Modelle",
+    "ownModelsHint": "Lade eine eigene GGUF-Datei von deinem Computer. Beachte die Lizenzbedingungen des jeweiligen Modells.",
+    "pickFile": "GGUF-Datei auswählen…",
+    "checking": "Wird geprüft…",
+    "noOwnModels": "Noch keine eigenen Modelle geladen.",
+    "removeLabel": "Entfernen",
+    "curatedModels": "Kuratierte Modelle",
+    "curatedModelsHint": "Ein Klick lädt das Modell herunter (falls noch nicht vorhanden) und wählt es aus.",
+    "loading": "Wird geladen…",
+    "engineSource": "Engine-Quelle",
+    "engineSourceHint": "Standardmäßig wird llama-server von ggml-org/llama.cpp geladen. Hier kann ein Fork angegeben werden (Format: besitzer/repo).",
+    "disclaimerConfirm": "Eigene Modelldateien stammen nicht von uns geprüft. Bitte stelle sicher, dass du die Lizenzbedingungen des jeweiligen Modells kennst und einhältst.\n\nFortfahren?",
+    "fileLoadError": "Die Datei konnte nicht geladen werden.",
+    "downloadError": "Das Modell konnte nicht geladen werden."
+  },
+  "logs": {
+    "hint": "Live-Ausgabe des Sprachmodell-Servers, nützlich für Fehlersuche.",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "noLogs": "Noch keine Log-Zeilen."
+  },
+  "update": {
+    "installing": "Update wird installiert",
+    "available": "Eine neue Version ({{version}}) ist verfügbar.",
+    "installNow": "Jetzt installieren",
+    "later": "Später"
+  },
+  "units": {
+    "mb": "MB",
+    "gb": "GB"
+  },
+  "errors": {
+    "gpu_out_of_memory": "Deine Grafikkarte hat nicht genug Speicher für dieses Modell. Wir schalten automatisch auf einen langsameren, aber zuverlässigen Modus um.",
+    "model_load_failed": "Die Modelldatei konnte nicht geladen werden. Sie ist möglicherweise beschädigt oder unvollständig heruntergeladen.",
+    "port_in_use": "Der gewählte Port wird bereits von einem anderen Programm verwendet. Bitte wähle im Erweiterten Modus einen anderen Port.",
+    "no_cuda_driver": "Es konnte keine unterstützte NVIDIA-Grafikkarte gefunden werden. Wir wechseln in einen Modus, der ohne spezielle Grafikkartenunterstützung läuft.",
+    "startup_failed_generic": "Das Sprachmodell konnte nicht gestartet werden. Wir versuchen es mit angepassten Einstellungen erneut.",
+    "insufficient_disk_space": "Es ist nicht genug Speicherplatz auf deiner Festplatte frei. Bitte gib etwas Speicherplatz frei und versuche es erneut.",
+    "network_error": "Der Download konnte nicht abgeschlossen werden. Bitte prüfe deine Internetverbindung und versuche es erneut.",
+    "checksum_mismatch": "Die heruntergeladene Datei scheint beschädigt zu sein. Wir versuchen den Download erneut.",
+    "invalid_file_extension": "Diese Datei ist keine GGUF-Modelldatei. Bitte wähle eine Datei mit der Endung .gguf.",
+    "file_not_readable": "Die ausgewählte Datei konnte nicht gelesen werden."
+  }
+}

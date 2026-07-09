@@ -3,6 +3,35 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Quantisierungsstufe für den KV-Cache (Kontext-Zwischenspeicher) von
+/// llama-server. f16 ist der Standard (volle Genauigkeit), q8_0/q4_0
+/// reduzieren den Speicherbedarf auf Kosten der Antwortqualität.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CacheType {
+    #[serde(rename = "f16")]
+    F16,
+    #[serde(rename = "q8_0")]
+    Q80,
+    #[serde(rename = "q4_0")]
+    Q40,
+}
+
+impl Default for CacheType {
+    fn default() -> Self {
+        CacheType::F16
+    }
+}
+
+impl CacheType {
+    fn as_cli_value(self) -> &'static str {
+        match self {
+            CacheType::F16 => "f16",
+            CacheType::Q80 => "q8_0",
+            CacheType::Q40 => "q4_0",
+        }
+    }
+}
+
 /// Parameter, mit denen `llama-server.exe` gestartet wird. Im einfachen
 /// Modus werden diese automatisch aus der Hardware-Erkennung und der
 /// Modell-Registry abgeleitet, ohne dass der Nutzer sie je sieht. Im
@@ -19,6 +48,13 @@ pub struct ServerConfig {
     pub top_k: u32,
     pub repeat_penalty: f32,
     pub system_prompt: Option<String>,
+    // `default`, damit Configs, die vor Einführung der KV-Cache-
+    // Quantisierung lokal gespeichert wurden, ohne Absturz weiter
+    // deserialisiert werden können (fällt auf f16 zurück).
+    #[serde(default)]
+    pub cache_type_k: CacheType,
+    #[serde(default)]
+    pub cache_type_v: CacheType,
 }
 
 impl Default for ServerConfig {
@@ -36,6 +72,8 @@ impl Default for ServerConfig {
             top_k: 40,
             repeat_penalty: 1.1,
             system_prompt: None,
+            cache_type_k: CacheType::F16,
+            cache_type_v: CacheType::F16,
         }
     }
 }
@@ -54,6 +92,10 @@ impl ServerConfig {
             self.gpu_layers.to_string(),
             "--threads".to_string(),
             self.threads.to_string(),
+            "--cache-type-k".to_string(),
+            self.cache_type_k.as_cli_value().to_string(),
+            "--cache-type-v".to_string(),
+            self.cache_type_v.as_cli_value().to_string(),
         ];
 
         if let Some(prompt) = &self.system_prompt {

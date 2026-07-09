@@ -153,6 +153,7 @@ pub fn validate_custom_model(path: String) -> Result<CustomModelInfo, FriendlyEr
 
     if path_buf.extension().and_then(|e| e.to_str()) != Some("gguf") {
         return Err(FriendlyError::new(
+            errors::ErrorCode::InvalidFileExtension,
             "Diese Datei ist keine GGUF-Modelldatei. Bitte wähle eine Datei mit der Endung .gguf.",
             format!("unexpected extension for {path}"),
         ));
@@ -160,6 +161,7 @@ pub fn validate_custom_model(path: String) -> Result<CustomModelInfo, FriendlyEr
 
     let metadata = std::fs::metadata(&path_buf).map_err(|e| {
         FriendlyError::new(
+            errors::ErrorCode::FileNotReadable,
             "Die ausgewählte Datei konnte nicht gelesen werden.",
             e.to_string(),
         )

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { downloadModel, loadCuratedModels, pickGgufFile, validateCustomModel } from "../../api/backend";
 import type { CuratedModel } from "../../api/types";
 import { isFriendlyError } from "../../api/types";
+import { translateError } from "../../api/errorTranslation";
 import {
   addCustomModel,
   loadCustomModels,
@@ -9,12 +11,6 @@ import {
   type CustomModel,
 } from "../../state/customModels";
 import { loadEngineRepo, saveEngineRepo } from "../../state/appState";
-
-function formatBytes(bytes: number): string {
-  const gb = bytes / (1024 * 1024 * 1024);
-  if (gb >= 1) return `${gb.toFixed(1)} GB`;
-  return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
-}
 
 const CUSTOM_MODEL_DISCLAIMER_KEY = "llmgui.customModelDisclaimerSeen";
 
@@ -32,6 +28,14 @@ interface ModelsTabProps {
 }
 
 export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTabProps) {
+  const { t } = useTranslation();
+
+  function formatBytes(bytes: number): string {
+    const gb = bytes / (1024 * 1024 * 1024);
+    if (gb >= 1) return `${gb.toFixed(1)} ${t("units.gb")}`;
+    return `${(bytes / (1024 * 1024)).toFixed(0)} ${t("units.mb")}`;
+  }
+
   const [curated, setCurated] = useState<CuratedModel[]>([]);
   const [custom, setCustom] = useState<CustomModel[]>(() => loadCustomModels());
   const [importError, setImportError] = useState<string | null>(null);
@@ -47,10 +51,7 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
     setImportError(null);
 
     if (!hasSeenCustomModelDisclaimer()) {
-      const confirmed = window.confirm(
-        "Eigene Modelldateien stammen nicht von uns geprüft. Bitte stelle sicher, dass du die " +
-          "Lizenzbedingungen des jeweiligen Modells kennst und einhältst.\n\nFortfahren?",
-      );
+      const confirmed = window.confirm(t("models.disclaimerConfirm"));
       if (!confirmed) return;
       markCustomModelDisclaimerSeen();
     }
@@ -70,7 +71,7 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
       setCustom(updated);
       onSelectModel(info.path);
     } catch (e) {
-      setImportError(isFriendlyError(e) ? e.message : "Die Datei konnte nicht geladen werden.");
+      setImportError(isFriendlyError(e) ? translateError(e) : t("models.fileLoadError"));
     } finally {
       setImporting(false);
     }
@@ -92,9 +93,7 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
       const path = await downloadModel(model);
       onSelectModel(path);
     } catch (e) {
-      setImportError(
-        isFriendlyError(e) ? e.message : "Das Modell konnte nicht geladen werden.",
-      );
+      setImportError(isFriendlyError(e) ? translateError(e) : t("models.downloadError"));
     } finally {
       setDownloadingId(null);
     }
@@ -103,13 +102,10 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
   return (
     <div className="models-tab">
       <section>
-        <h3>Eigene Modelle</h3>
-        <p className="hint">
-          Lade eine eigene GGUF-Datei von deinem Computer. Beachte die Lizenzbedingungen des
-          jeweiligen Modells.
-        </p>
+        <h3>{t("models.ownModels")}</h3>
+        <p className="hint">{t("models.ownModelsHint")}</p>
         <button className="secondary-button" onClick={handlePickFile} disabled={importing}>
-          {importing ? "Wird geprüft…" : "GGUF-Datei auswählen…"}
+          {importing ? t("models.checking") : t("models.pickFile")}
         </button>
         {importError && <div className="advanced-error">{importError}</div>}
 
@@ -123,21 +119,19 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
               <button
                 className="remove-button"
                 onClick={() => handleRemoveCustom(m.path)}
-                aria-label="Entfernen"
+                aria-label={t("models.removeLabel")}
               >
                 ×
               </button>
             </li>
           ))}
-          {custom.length === 0 && <li className="hint">Noch keine eigenen Modelle geladen.</li>}
+          {custom.length === 0 && <li className="hint">{t("models.noOwnModels")}</li>}
         </ul>
       </section>
 
       <section>
-        <h3>Kuratierte Modelle</h3>
-        <p className="hint">
-          Ein Klick lädt das Modell herunter (falls noch nicht vorhanden) und wählt es aus.
-        </p>
+        <h3>{t("models.curatedModels")}</h3>
+        <p className="hint">{t("models.curatedModelsHint")}</p>
         <ul className="model-list">
           {curated.map((m) => (
             <li key={m.id}>
@@ -148,7 +142,7 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
               >
                 <span className="model-name">{m.label}</span>
                 <span className="model-meta">
-                  {downloadingId === m.id ? "Wird geladen…" : formatBytes(m.approxSizeBytes)}
+                  {downloadingId === m.id ? t("models.loading") : formatBytes(m.approxSizeBytes)}
                 </span>
               </button>
             </li>
@@ -157,11 +151,8 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
       </section>
 
       <section>
-        <h3>Engine-Quelle</h3>
-        <p className="hint">
-          Standardmäßig wird llama-server von ggml-org/llama.cpp geladen. Hier kann ein Fork
-          angegeben werden (Format: besitzer/repo).
-        </p>
+        <h3>{t("models.engineSource")}</h3>
+        <p className="hint">{t("models.engineSourceHint")}</p>
         <input
           type="text"
           placeholder="ggml-org/llama.cpp"

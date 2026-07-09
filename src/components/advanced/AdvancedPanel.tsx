@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ServerConfig } from "../../api/types";
 import ParametersTab from "./ParametersTab";
 import ModelsTab from "./ModelsTab";
 import LogsTab from "./LogsTab";
+import LanguageSwitcher from "../shared/LanguageSwitcher";
 import "./advanced.css";
 
 type Tab = "parameters" | "models" | "logs";
@@ -24,6 +26,7 @@ export default function AdvancedPanel({
   applying,
   applyError,
 }: AdvancedPanelProps) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("parameters");
   const [draft, setDraft] = useState<ServerConfig>(config);
   const [selectedModelPath, setSelectedModelPath] = useState(config.model_path);
@@ -38,8 +41,8 @@ export default function AdvancedPanel({
     <div className="advanced-overlay">
       <div className="advanced-panel">
         <div className="advanced-header">
-          <h2>Erweiterte Einstellungen</h2>
-          <button className="close-button" onClick={onClose} aria-label="Schließen">
+          <h2>{t("advanced.title")}</h2>
+          <button className="close-button" onClick={onClose} aria-label={t("advanced.close")}>
             ×
           </button>
         </div>
@@ -49,22 +52,25 @@ export default function AdvancedPanel({
             className={tab === "parameters" ? "active" : ""}
             onClick={() => setTab("parameters")}
           >
-            Parameter
+            {t("advanced.tabs.parameters")}
           </button>
           <button
             className={tab === "models" ? "active" : ""}
             onClick={() => setTab("models")}
           >
-            Modelle
+            {t("advanced.tabs.models")}
           </button>
           <button className={tab === "logs" ? "active" : ""} onClick={() => setTab("logs")}>
-            Logs
+            {t("advanced.tabs.logs")}
           </button>
         </div>
 
         <div className="advanced-content">
           {tab === "parameters" && (
-            <ParametersTab draft={draft} onChange={updateDraft} />
+            <>
+              <LanguageSwitcher />
+              <ParametersTab draft={draft} onChange={updateDraft} />
+            </>
           )}
           {tab === "models" && (
             <ModelsTab
@@ -85,7 +91,7 @@ export default function AdvancedPanel({
             disabled={applying}
             onClick={() => onApply(draft, selectedModelPath)}
           >
-            {applying ? "Wird angewendet…" : "Anwenden & neu starten"}
+            {applying ? t("advanced.applying") : t("advanced.apply")}
           </button>
         </div>
       </div>
