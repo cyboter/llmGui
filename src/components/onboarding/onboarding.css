@@ -41,6 +41,12 @@
   color: #666;
 }
 
+.setup-hint {
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 0.75rem;
+}
+
 .primary-button {
   background: #2563eb;
   color: white;

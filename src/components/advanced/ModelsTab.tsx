@@ -16,6 +16,16 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
 }
 
+const CUSTOM_MODEL_DISCLAIMER_KEY = "llmgui.customModelDisclaimerSeen";
+
+function hasSeenCustomModelDisclaimer(): boolean {
+  return localStorage.getItem(CUSTOM_MODEL_DISCLAIMER_KEY) === "true";
+}
+
+function markCustomModelDisclaimerSeen(): void {
+  localStorage.setItem(CUSTOM_MODEL_DISCLAIMER_KEY, "true");
+}
+
 interface ModelsTabProps {
   selectedModelPath: string;
   onSelectModel: (path: string) => void;
@@ -35,6 +45,16 @@ export default function ModelsTab({ selectedModelPath, onSelectModel }: ModelsTa
 
   async function handlePickFile() {
     setImportError(null);
+
+    if (!hasSeenCustomModelDisclaimer()) {
+      const confirmed = window.confirm(
+        "Eigene Modelldateien stammen nicht von uns geprüft. Bitte stelle sicher, dass du die " +
+          "Lizenzbedingungen des jeweiligen Modells kennst und einhältst.\n\nFortfahren?",
+      );
+      if (!confirmed) return;
+      markCustomModelDisclaimerSeen();
+    }
+
     const path = await pickGgufFile();
     if (!path) return;
 

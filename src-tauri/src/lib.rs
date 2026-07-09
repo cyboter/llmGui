@@ -6,8 +6,9 @@ pub mod hardware;
 mod models;
 
 use commands::AppState;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use tauri::Manager;
+use tauri::{Manager, WindowEvent};
 use tokio::sync::Mutex;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -31,6 +32,36 @@ pub fn run() {
             });
 
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            // Ohne diesen Handler bliebe llama-server.exe verwaist im
+            // Hintergrund laufen, wenn die App per Fenster-X geschlossen
+            // wird — `kill_on_drop` greift nur beim regulären Rust-Drop des
+            // Prozess-Handles, nicht zuverlässig bei jedem Schließpfad.
+            //
+            // block_on() wäre hier riskant (potenzieller Deadlock/Panic,
+            // falls der Callback bereits auf einem Tokio-Runtime-Thread
+            // läuft) — stattdessen wird der Schließvorgang einmalig
+            // verzögert, bis der Server asynchron gestoppt wurde.
+            if let WindowEvent::CloseRequested { api, .. } = event {
+                static CLEANUP_DONE: AtomicBool = AtomicBool::new(false);
+
+                if CLEANUP_DONE.load(Ordering::SeqCst) {
+                    return;
+                }
+
+                api.prevent_close();
+
+                let window = window.clone();
+                let state = window.state::<AppState>();
+                let server = state.server.clone();
+
+                tauri::async_runtime::spawn(async move {
+                    server.lock().await.stop().await;
+                    CLEANUP_DONE.store(true, Ordering::SeqCst);
+                    let _ = window.close();
+                });
+            }
         })
         .invoke_handler(tauri::generate_handler![
             commands::detect_hardware,

@@ -66,6 +66,8 @@ function App() {
     setApplying(true);
     setApplyError(null);
 
+    const previousSetup = setup;
+
     try {
       const configToApply: ServerConfig = { ...newConfig, model_path: modelPath };
       await stopServer();
@@ -90,6 +92,21 @@ function App() {
       setSetup(updatedSetup);
       setAdvancedOpen(false);
     } catch (e) {
+      // Der alte Server wurde bereits gestoppt, bevor der neue Start
+      // versucht wurde — ohne Fallback bliebe der Nutzer ohne laufenden
+      // Server zurück, obwohl vorher alles funktionierte. Wir versuchen
+      // daher, die zuletzt bekannte funktionierende Konfiguration wieder
+      // herzustellen, und zeigen den eigentlichen Fehler zusätzlich an.
+      try {
+        await startServer(
+          previousSetup.exePath,
+          previousSetup.config,
+          previousSetup.maxGpuLayers,
+        );
+      } catch {
+        // Auch der Fallback ist gescheitert — dann bleibt nur die
+        // Fehlermeldung, der Nutzer muss die App neu starten.
+      }
       setApplyError(
         isFriendlyError(e) ? e.message : "Die Einstellungen konnten nicht angewendet werden.",
       );

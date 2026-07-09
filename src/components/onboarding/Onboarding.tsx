@@ -181,15 +181,19 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               Downloadgröße: ca. {formatBytes(model.approxSizeBytes)}
             </p>
             <p className="model-license">
-              Lizenz: {model.license.summary}{" "}
+              Lizenz ({model.license.name}): {model.license.summary}{" "}
               <a href={model.license.url} target="_blank" rel="noreferrer">
-                Details
+                Volltext ansehen
               </a>
             </p>
           </div>
           <button className="primary-button" onClick={handleStart}>
             Jetzt einrichten
           </button>
+          <p className="setup-hint">
+            Dieses Modell lässt sich später im Erweiterten Modus (Zahnrad-Symbol) jederzeit
+            wechseln.
+          </p>
         </div>
       )}
 
